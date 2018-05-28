@@ -1,0 +1,28 @@
+
+  BIO：采用Java IO技术，单线程处理单请求(Tomcat7以下默认) 
+  NIO：采用Java NIO技术，少量线程处理大量请求(Tomcat8以上默认) 
+  APR：采用Jni技术，从操作层面解决io阻塞问题，适合高并发场景 
+  
+  
+  @Configuration
+  public class TomcatCfg {
+
+    @Bean
+    //@Order
+    public TomcatEmbeddedServletContainerFactory tomcatEmbeddedServletContainerFactory() {
+        TomcatEmbeddedServletContainerFactory tomcatFactory = new TomcatEmbeddedServletContainerFactory();
+
+        if (true) {
+            AprLifecycleListener arpLifecycle = new AprLifecycleListener();
+            //tomcatFactory.setProtocol("org.apache.coyote.http11.Http11Nio2Protocol");
+            tomcatFactory.setProtocol("org.apache.coyote.http11.Http11AprProtocol");
+            tomcatFactory.addConnectorCustomizers((TomcatConnectorCustomizer) connector -> {
+                Http11AprProtocol handler = (Http11AprProtocol)connector.getProtocolHandler();
+                //Http11Nio2Protocol handler = (Http11Nio2Protocol)connector.getProtocolHandler();
+                //新版本的tomcat 8.5.23 已经没有了pollerSize
+                //handler.pollerSize(40 * 1024);
+            });
+        }
+        return tomcatFactory;
+    }
+  }
